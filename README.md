@@ -1,2 +1,2 @@
 # 310_Team7
-Vibes
+This is our README O.O
