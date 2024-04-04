@@ -1,0 +1,9 @@
+{
+	"name": "covid19-team7",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "a8686645-3e47-471d-85f6-93e9ce19c3c4",
+		"tenantId": "d57d32cc-c121-488f-b07b-dfe705680c71"
+	}
+}
