@@ -2,7 +2,7 @@
 	"name": "dates_azuresql",
 	"properties": {
 		"linkedServiceName": {
-			"referenceName": "AzureDataLakeStorage1",
+			"referenceName": "AzureDataLakeStorage2",
 			"type": "LinkedServiceReference"
 		},
 		"annotations": [],
@@ -10,6 +10,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
+				"fileName": "dbo.Dates.parquet",
 				"fileSystem": "azure-sql-db-data"
 			},
 			"compressionCodec": "snappy"
