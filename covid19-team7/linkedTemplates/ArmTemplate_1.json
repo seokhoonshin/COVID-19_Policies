@@ -510,7 +510,7 @@
 						"union1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     format: 'parquet',",
-						"     partitionFileNames:['CovidData'],",
+						"     partitionFileNames:['CovidData.parquet'],",
 						"     umask: 0022,",
 						"     preCommands: [],",
 						"     postCommands: [],",
