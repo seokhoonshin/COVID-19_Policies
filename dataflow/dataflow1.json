@@ -9,63 +9,63 @@
 						"referenceName": "country_azuresql",
 						"type": "DatasetReference"
 					},
-					"name": "source1"
+					"name": "azurecountry"
 				},
 				{
 					"dataset": {
 						"referenceName": "covidmetrics_azuresql",
 						"type": "DatasetReference"
 					},
-					"name": "source2"
+					"name": "azuremetrics"
 				},
 				{
 					"dataset": {
 						"referenceName": "dates_azuresql",
 						"type": "DatasetReference"
 					},
-					"name": "source3"
+					"name": "azuredates"
 				},
 				{
 					"dataset": {
 						"referenceName": "vm_country",
 						"type": "DatasetReference"
 					},
-					"name": "source4"
+					"name": "vmcountry"
 				},
 				{
 					"dataset": {
 						"referenceName": "vm_dates",
 						"type": "DatasetReference"
 					},
-					"name": "source5"
+					"name": "vmdates"
 				},
 				{
 					"dataset": {
 						"referenceName": "vm_metrics",
 						"type": "DatasetReference"
 					},
-					"name": "source6"
+					"name": "vmmetrics"
 				},
 				{
 					"dataset": {
 						"referenceName": "cosmos_data",
 						"type": "DatasetReference"
 					},
-					"name": "source7"
+					"name": "cosmospolicy"
 				}
 			],
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "Parquet1",
+						"referenceName": "combined_data",
 						"type": "DatasetReference"
 					},
-					"name": "sink1"
+					"name": "combineddata"
 				}
 			],
 			"transformations": [
 				{
-					"name": "union1"
+					"name": "union"
 				}
 			],
 			"scriptLines": [
@@ -79,7 +79,7 @@
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false,",
 				"     format: 'parquet',",
-				"     partitionBy('hash', 1)) ~> source1",
+				"     partitionBy('hash', 1)) ~> azurecountry",
 				"source(output(",
 				"          ID as integer,",
 				"          Updated as date,",
@@ -100,7 +100,7 @@
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false,",
 				"     format: 'parquet',",
-				"     partitionBy('hash', 1)) ~> source2",
+				"     partitionBy('hash', 1)) ~> azuremetrics",
 				"source(output(",
 				"          DateKey as integer,",
 				"          FullDate as date,",
@@ -127,7 +127,7 @@
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false,",
 				"     format: 'parquet',",
-				"     partitionBy('hash', 1)) ~> source3",
+				"     partitionBy('hash', 1)) ~> azuredates",
 				"source(output(",
 				"          Country as string,",
 				"          CountryCode as string,",
@@ -138,7 +138,7 @@
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false,",
 				"     format: 'parquet',",
-				"     partitionBy('hash', 1)) ~> source4",
+				"     partitionBy('hash', 1)) ~> vmcountry",
 				"source(output(",
 				"          DateKey as integer,",
 				"          FullDate as date,",
@@ -165,7 +165,7 @@
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false,",
 				"     format: 'parquet',",
-				"     partitionBy('hash', 1)) ~> source5",
+				"     partitionBy('hash', 1)) ~> vmdates",
 				"source(output(",
 				"          ID as integer,",
 				"          Updated as date,",
@@ -186,7 +186,7 @@
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false,",
 				"     format: 'parquet',",
-				"     partitionBy('hash', 1)) ~> source6",
+				"     partitionBy('hash', 1)) ~> vmmetrics",
 				"source(output(",
 				"          CountryName as string,",
 				"          CountryCode as string,",
@@ -248,10 +248,10 @@
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false,",
 				"     format: 'parquet',",
-				"     partitionBy('hash', 1)) ~> source7",
-				"source1, source2, source3, source4, source5, source6, source7 union(byName: true,",
-				"     partitionBy('hash', 1))~> union1",
-				"union1 sink(allowSchemaDrift: true,",
+				"     partitionBy('hash', 1)) ~> cosmospolicy",
+				"azurecountry, azuremetrics, azuredates, vmcountry, vmdates, vmmetrics, cosmospolicy union(byName: true,",
+				"     partitionBy('hash', 1))~> union",
+				"union sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'parquet',",
 				"     partitionFileNames:['CovidData.parquet'],",
@@ -260,7 +260,7 @@
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     partitionBy('hash', 1)) ~> sink1"
+				"     partitionBy('hash', 1)) ~> combineddata"
 			]
 		}
 	}
