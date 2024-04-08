@@ -61,7 +61,7 @@
 				"union1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'parquet',",
-				"     partitionFileNames:['combined_country_data'],",
+				"     partitionFileNames:['geography'],",
 				"     umask: 0022,",
 				"     preCommands: [],",
 				"     postCommands: [],",

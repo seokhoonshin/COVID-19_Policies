@@ -61,7 +61,7 @@
 				"union1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'parquet',",
-				"     partitionFileNames:['combined_dates_data'],",
+				"     partitionFileNames:['date'],",
 				"     umask: 0022,",
 				"     preCommands: [],",
 				"     postCommands: [],",
