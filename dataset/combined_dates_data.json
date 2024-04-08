@@ -10,6 +10,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "AzureBlobFSLocation",
+				"fileName": "date.parquet",
 				"fileSystem": "conformed-data"
 			},
 			"compressionCodec": "snappy"
