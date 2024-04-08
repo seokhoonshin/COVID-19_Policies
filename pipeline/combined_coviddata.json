@@ -73,6 +73,772 @@
 					},
 					"traceLevel": "Fine"
 				}
+			},
+			{
+				"name": "deaths data",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "deaths_data",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "recoveries data",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "recoveries_data",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "policies data",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "ParquetSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "ParquetReadSettings"
+						}
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "CountryName",
+									"type": "String",
+									"physicalType": "UTF8"
+								},
+								"sink": {
+									"name": "CountryName",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "CountryCode",
+									"type": "String",
+									"physicalType": "UTF8"
+								},
+								"sink": {
+									"name": "CountryCode",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "RegionName",
+									"type": "String",
+									"physicalType": "UTF8"
+								},
+								"sink": {
+									"name": "RegionName",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "RegionCode",
+									"type": "String",
+									"physicalType": "UTF8"
+								},
+								"sink": {
+									"name": "RegionCode",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "Jurisdiction",
+									"type": "String",
+									"physicalType": "UTF8"
+								},
+								"sink": {
+									"name": "Jurisdiction",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "Date",
+									"type": "DateTime",
+									"physicalType": "INT96"
+								},
+								"sink": {
+									"name": "Date",
+									"type": "DateTime",
+									"physicalType": "INT_96"
+								}
+							},
+							{
+								"source": {
+									"name": "C1_School_closing",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								},
+								"sink": {
+									"name": "C1_School_closing",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								}
+							},
+							{
+								"source": {
+									"name": "C1_Flag",
+									"type": "Boolean",
+									"physicalType": "BOOLEAN"
+								},
+								"sink": {
+									"name": "C1_Flag",
+									"type": "Boolean",
+									"physicalType": "BOOLEAN"
+								}
+							},
+							{
+								"source": {
+									"name": "C2_Workplace_closing",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								},
+								"sink": {
+									"name": "C2_Workplace_closing",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								}
+							},
+							{
+								"source": {
+									"name": "C2_Flag",
+									"type": "Boolean",
+									"physicalType": "BOOLEAN"
+								},
+								"sink": {
+									"name": "C2_Flag",
+									"type": "Boolean",
+									"physicalType": "BOOLEAN"
+								}
+							},
+							{
+								"source": {
+									"name": "C3_Cancel_public_events",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								},
+								"sink": {
+									"name": "C3_Cancel_public_events",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								}
+							},
+							{
+								"source": {
+									"name": "C3_Flag",
+									"type": "Boolean",
+									"physicalType": "BOOLEAN"
+								},
+								"sink": {
+									"name": "C3_Flag",
+									"type": "Boolean",
+									"physicalType": "BOOLEAN"
+								}
+							},
+							{
+								"source": {
+									"name": "C4_Restrictions_on_gatherings",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								},
+								"sink": {
+									"name": "C4_Restrictions_on_gatherings",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								}
+							},
+							{
+								"source": {
+									"name": "C4_Flag",
+									"type": "Boolean",
+									"physicalType": "BOOLEAN"
+								},
+								"sink": {
+									"name": "C4_Flag",
+									"type": "Boolean",
+									"physicalType": "BOOLEAN"
+								}
+							},
+							{
+								"source": {
+									"name": "C5_Close_public_transport",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								},
+								"sink": {
+									"name": "C5_Close_public_transport",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								}
+							},
+							{
+								"source": {
+									"name": "C5_Flag",
+									"type": "Boolean",
+									"physicalType": "BOOLEAN"
+								},
+								"sink": {
+									"name": "C5_Flag",
+									"type": "Boolean",
+									"physicalType": "BOOLEAN"
+								}
+							},
+							{
+								"source": {
+									"name": "C6_Stay_at_home_requirements",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								},
+								"sink": {
+									"name": "C6_Stay_at_home_requirements",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								}
+							},
+							{
+								"source": {
+									"name": "C6_Flag",
+									"type": "Boolean",
+									"physicalType": "BOOLEAN"
+								},
+								"sink": {
+									"name": "C6_Flag",
+									"type": "Boolean",
+									"physicalType": "BOOLEAN"
+								}
+							},
+							{
+								"source": {
+									"name": "C7_Restrictions_on_internal_movement",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								},
+								"sink": {
+									"name": "C7_Restrictions_on_internal_movement",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								}
+							},
+							{
+								"source": {
+									"name": "C7_Flag",
+									"type": "Boolean",
+									"physicalType": "BOOLEAN"
+								},
+								"sink": {
+									"name": "C7_Flag",
+									"type": "Boolean",
+									"physicalType": "BOOLEAN"
+								}
+							},
+							{
+								"source": {
+									"name": "C8_International_travel_controls",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								},
+								"sink": {
+									"name": "C8_International_travel_controls",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								}
+							},
+							{
+								"source": {
+									"name": "E1_Income_support",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								},
+								"sink": {
+									"name": "E1_Income_support",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								}
+							},
+							{
+								"source": {
+									"name": "E1_Flag",
+									"type": "Boolean",
+									"physicalType": "BOOLEAN"
+								},
+								"sink": {
+									"name": "E1_Flag",
+									"type": "Boolean",
+									"physicalType": "BOOLEAN"
+								}
+							},
+							{
+								"source": {
+									"name": "E2_Debt_contract_relief",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								},
+								"sink": {
+									"name": "E2_Debt_contract_relief",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								}
+							},
+							{
+								"source": {
+									"name": "E3_Fiscal_measures",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								},
+								"sink": {
+									"name": "E3_Fiscal_measures",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								}
+							},
+							{
+								"source": {
+									"name": "E4_International_support",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								},
+								"sink": {
+									"name": "E4_International_support",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								}
+							},
+							{
+								"source": {
+									"name": "H1_Public_information_campaigns",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								},
+								"sink": {
+									"name": "H1_Public_information_campaigns",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								}
+							},
+							{
+								"source": {
+									"name": "H1_Flag",
+									"type": "Boolean",
+									"physicalType": "BOOLEAN"
+								},
+								"sink": {
+									"name": "H1_Flag",
+									"type": "Boolean",
+									"physicalType": "BOOLEAN"
+								}
+							},
+							{
+								"source": {
+									"name": "H2_Testing_policy",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								},
+								"sink": {
+									"name": "H2_Testing_policy",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								}
+							},
+							{
+								"source": {
+									"name": "H3_Contact_tracing",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								},
+								"sink": {
+									"name": "H3_Contact_tracing",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								}
+							},
+							{
+								"source": {
+									"name": "H4_Emergency_investment_in_healthcare",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								},
+								"sink": {
+									"name": "H4_Emergency_investment_in_healthcare",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								}
+							},
+							{
+								"source": {
+									"name": "H5_Investment_in_vaccines",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								},
+								"sink": {
+									"name": "H5_Investment_in_vaccines",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								}
+							},
+							{
+								"source": {
+									"name": "H6_Facial_Coverings",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								},
+								"sink": {
+									"name": "H6_Facial_Coverings",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								}
+							},
+							{
+								"source": {
+									"name": "H6_Flag",
+									"type": "Boolean",
+									"physicalType": "BOOLEAN"
+								},
+								"sink": {
+									"name": "H6_Flag",
+									"type": "Boolean",
+									"physicalType": "BOOLEAN"
+								}
+							},
+							{
+								"source": {
+									"name": "H7_Vaccination_policy",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								},
+								"sink": {
+									"name": "H7_Vaccination_policy",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								}
+							},
+							{
+								"source": {
+									"name": "H7_Flag",
+									"type": "Boolean",
+									"physicalType": "BOOLEAN"
+								},
+								"sink": {
+									"name": "H7_Flag",
+									"type": "Boolean",
+									"physicalType": "BOOLEAN"
+								}
+							},
+							{
+								"source": {
+									"name": "H8_Protection_of_elderly_people",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								},
+								"sink": {
+									"name": "H8_Protection_of_elderly_people",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								}
+							},
+							{
+								"source": {
+									"name": "H8_Flag",
+									"type": "Boolean",
+									"physicalType": "BOOLEAN"
+								},
+								"sink": {
+									"name": "H8_Flag",
+									"type": "Boolean",
+									"physicalType": "BOOLEAN"
+								}
+							},
+							{
+								"source": {
+									"name": "M1_Wildcard",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								},
+								"sink": {
+									"name": "M1_Wildcard",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								}
+							},
+							{
+								"source": {
+									"name": "StringencyIndex",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								},
+								"sink": {
+									"name": "StringencyIndex",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								}
+							},
+							{
+								"source": {
+									"name": "StringencyIndexForDisplay",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								},
+								"sink": {
+									"name": "StringencyIndexForDisplay",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								}
+							},
+							{
+								"source": {
+									"name": "StringencyLegacyIndex",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								},
+								"sink": {
+									"name": "StringencyLegacyIndex",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								}
+							},
+							{
+								"source": {
+									"name": "StringencyLegacyIndexForDisplay",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								},
+								"sink": {
+									"name": "StringencyLegacyIndexForDisplay",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								}
+							},
+							{
+								"source": {
+									"name": "GovernmentResponseIndex",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								},
+								"sink": {
+									"name": "GovernmentResponseIndex",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								}
+							},
+							{
+								"source": {
+									"name": "GovernmentResponseIndexForDisplay",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								},
+								"sink": {
+									"name": "GovernmentResponseIndexForDisplay",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								}
+							},
+							{
+								"source": {
+									"name": "ContainmentHealthIndex",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								},
+								"sink": {
+									"name": "ContainmentHealthIndex",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								}
+							},
+							{
+								"source": {
+									"name": "ContainmentHealthIndexForDisplay",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								},
+								"sink": {
+									"name": "ContainmentHealthIndexForDisplay",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								}
+							},
+							{
+								"source": {
+									"name": "EconomicSupportIndex",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								},
+								"sink": {
+									"name": "EconomicSupportIndex",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								}
+							},
+							{
+								"source": {
+									"name": "EconomicSupportIndexForDisplay",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								},
+								"sink": {
+									"name": "EconomicSupportIndexForDisplay",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								}
+							},
+							{
+								"source": {
+									"name": "id",
+									"type": "String",
+									"physicalType": "UTF8"
+								},
+								"sink": {
+									"name": "id",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "_rid",
+									"type": "String",
+									"physicalType": "UTF8"
+								},
+								"sink": {
+									"name": "_rid",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "_self",
+									"type": "String",
+									"physicalType": "UTF8"
+								},
+								"sink": {
+									"name": "_self",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "_etag",
+									"type": "String",
+									"physicalType": "UTF8"
+								},
+								"sink": {
+									"name": "_etag",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "_attachments",
+									"type": "String",
+									"physicalType": "UTF8"
+								},
+								"sink": {
+									"name": "_attachments",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "_ts",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								},
+								"sink": {
+									"name": "_ts",
+									"type": "Double",
+									"physicalType": "DOUBLE"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "cosmos_data",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "policies",
+						"type": "DatasetReference"
+					}
+				]
 			}
 		],
 		"annotations": []
