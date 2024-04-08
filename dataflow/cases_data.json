@@ -30,7 +30,10 @@
 			],
 			"transformations": [
 				{
-					"name": "joincases"
+					"name": "union1"
+				},
+				{
+					"name": "select1"
 				}
 			],
 			"scriptLines": [
@@ -75,22 +78,23 @@
 				"     ignoreNoFilesFound: false,",
 				"     format: 'parquet',",
 				"     partitionBy('hash', 1)) ~> vmmetrics",
-				"azuremetrics, vmmetrics join(azuremetrics@ID == vmmetrics@ID",
-				"     && azuremetrics@Updated == vmmetrics@Updated",
-				"     && azuremetrics@Confirmed == vmmetrics@Confirmed",
-				"     && azuremetrics@Confirmed_Change == vmmetrics@Confirmed_Change",
-				"     && azuremetrics@Latitude == vmmetrics@Latitude",
-				"     && azuremetrics@Longitude == vmmetrics@Longitude",
-				"     && azuremetrics@ISO2 == vmmetrics@ISO2",
-				"     && azuremetrics@ISO3 == vmmetrics@ISO3",
-				"     && azuremetrics@Country_Region == vmmetrics@Country_Region",
-				"     && azuremetrics@load_time == vmmetrics@load_time,",
-				"     joinType:'outer',",
-				"     matchType:'exact',",
-				"     ignoreSpaces: false,",
-				"     partitionBy('hash', 1),",
-				"     broadcast: 'auto')~> joincases",
-				"joincases sink(allowSchemaDrift: true,",
+				"azuremetrics, vmmetrics union(byName: true,",
+				"     partitionBy('hash', 1))~> union1",
+				"union1 select(mapColumn(",
+				"          ID,",
+				"          Updated,",
+				"          Confirmed,",
+				"          Confirmed_Change,",
+				"          Latitude,",
+				"          Longitude,",
+				"          ISO2,",
+				"          ISO3,",
+				"          Country_Region,",
+				"          load_time",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'parquet',",
 				"     partitionFileNames:['cases.parquet'],",

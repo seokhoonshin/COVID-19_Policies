@@ -30,7 +30,7 @@
 			],
 			"transformations": [
 				{
-					"name": "union1"
+					"name": "join1"
 				}
 			],
 			"scriptLines": [
@@ -88,9 +88,31 @@
 				"     ignoreNoFilesFound: false,",
 				"     format: 'parquet',",
 				"     partitionBy('hash', 1)) ~> vmdates",
-				"azuredates, vmdates union(byName: true,",
-				"     partitionBy('hash', 1))~> union1",
-				"union1 sink(allowSchemaDrift: true,",
+				"azuredates, vmdates join(azuredates@DateKey == vmdates@DateKey",
+				"     && azuredates@FullDate == vmdates@FullDate",
+				"     && azuredates@isWeekDay == vmdates@isWeekDay",
+				"     && azuredates@DayOfWeek == vmdates@DayOfWeek",
+				"     && azuredates@DayOfMonth == vmdates@DayOfMonth",
+				"     && azuredates@DayOfQuarter == vmdates@DayOfQuarter",
+				"     && azuredates@DayOfYear == vmdates@DayOfYear",
+				"     && azuredates@DayName == vmdates@DayName",
+				"     && azuredates@WeekOfYear == vmdates@WeekOfYear",
+				"     && azuredates@WeekName == vmdates@WeekName",
+				"     && azuredates@MonthOfYear == vmdates@MonthOfYear",
+				"     && azuredates@MonthName == vmdates@MonthName",
+				"     && azuredates@CalendarQuarter == vmdates@CalendarQuarter",
+				"     && azuredates@CalendarQuarterName == vmdates@CalendarQuarterName",
+				"     && azuredates@CalendarYear == vmdates@CalendarYear",
+				"     && azuredates@FiscalMonth == vmdates@FiscalMonth",
+				"     && azuredates@FiscalMonthName == vmdates@FiscalMonthName",
+				"     && azuredates@FiscalQuarter == vmdates@FiscalQuarter",
+				"     && azuredates@FiscalQuarterName == vmdates@FiscalQuarterName",
+				"     && azuredates@FiscalYear == vmdates@FiscalYear,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join1",
+				"join1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'parquet',",
 				"     partitionFileNames:['date.parquet'],",

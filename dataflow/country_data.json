@@ -30,7 +30,7 @@
 			],
 			"transformations": [
 				{
-					"name": "union1"
+					"name": "join1"
 				}
 			],
 			"scriptLines": [
@@ -56,9 +56,15 @@
 				"     ignoreNoFilesFound: false,",
 				"     format: 'parquet',",
 				"     partitionBy('hash', 1)) ~> vmcountry",
-				"azurecountry, vmcountry union(byName: true,",
-				"     partitionBy('hash', 1))~> union1",
-				"union1 sink(allowSchemaDrift: true,",
+				"azurecountry, vmcountry join(azurecountry@Country == vmcountry@Country",
+				"     && azurecountry@CountryCode == vmcountry@CountryCode",
+				"     && azurecountry@Latitude == vmcountry@Latitude",
+				"     && azurecountry@Longitude == vmcountry@Longitude,",
+				"     joinType:'inner',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> join1",
+				"join1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'parquet',",
 				"     partitionFileNames:['geography.parquet'],",

@@ -30,7 +30,10 @@
 			],
 			"transformations": [
 				{
-					"name": "join1"
+					"name": "union1"
+				},
+				{
+					"name": "select1"
 				}
 			],
 			"scriptLines": [
@@ -76,22 +79,24 @@
 				"     ignoreNoFilesFound: false,",
 				"     format: 'parquet',",
 				"     partitionBy('hash', 1)) ~> vmmetrics",
-				"azuremetrics, vmmetrics join(azuremetrics@ID == vmmetrics@ID",
-				"     && azuremetrics@Updated == vmmetrics@Updated",
-				"     && azuremetrics@Recovered == vmmetrics@Recovered",
-				"     && azuremetrics@Recovered_Change == vmmetrics@Recovered_Change",
-				"     && azuremetrics@Latitude == vmmetrics@Latitude",
-				"     && azuremetrics@Longitude == vmmetrics@Longitude",
-				"     && azuremetrics@ISO2 == vmmetrics@ISO2",
-				"     && azuremetrics@ISO3 == vmmetrics@ISO3",
-				"     && azuremetrics@Country_Region == vmmetrics@Country_Region",
-				"     && azuremetrics@load_time == vmmetrics@load_time,",
-				"     joinType:'outer',",
-				"     matchType:'exact',",
-				"     ignoreSpaces: false,",
+				"azuremetrics, vmmetrics union(byName: true,",
+				"     partitionBy('hash', 1))~> union1",
+				"union1 select(mapColumn(",
+				"          ID,",
+				"          Updated,",
+				"          Recovered,",
+				"          Recovered_Change,",
+				"          Latitude,",
+				"          Longitude,",
+				"          ISO2,",
+				"          ISO3,",
+				"          Country_Region,",
+				"          load_time",
+				"     ),",
 				"     partitionBy('hash', 1),",
-				"     broadcast: 'auto')~> join1",
-				"join1 sink(allowSchemaDrift: true,",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'parquet',",
 				"     partitionFileNames:['recoveries.parquet'],",

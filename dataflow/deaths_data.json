@@ -1,5 +1,5 @@
 {
-	"name": "deaths_data_copy1",
+	"name": "deaths_data",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
