@@ -1,5 +1,5 @@
 {
-	"name": "cases_data",
+	"name": "recoveries_data",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
@@ -22,15 +22,15 @@
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "cases_data",
+						"referenceName": "recoveries_data",
 						"type": "DatasetReference"
 					},
-					"name": "casesdata"
+					"name": "combinedrecoveries"
 				}
 			],
 			"transformations": [
 				{
-					"name": "joincases"
+					"name": "join1"
 				}
 			],
 			"scriptLines": [
@@ -53,7 +53,8 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false,",
-				"     format: 'parquet') ~> azuremetrics",
+				"     format: 'parquet',",
+				"     partitionBy('hash', 1)) ~> azuremetrics",
 				"source(output(",
 				"          ID as integer,",
 				"          Updated as date,",
@@ -77,8 +78,8 @@
 				"     partitionBy('hash', 1)) ~> vmmetrics",
 				"azuremetrics, vmmetrics join(azuremetrics@ID == vmmetrics@ID",
 				"     && azuremetrics@Updated == vmmetrics@Updated",
-				"     && azuremetrics@Confirmed == vmmetrics@Confirmed",
-				"     && azuremetrics@Confirmed_Change == vmmetrics@Confirmed_Change",
+				"     && azuremetrics@Recovered == vmmetrics@Recovered",
+				"     && azuremetrics@Recovered_Change == vmmetrics@Recovered_Change",
 				"     && azuremetrics@Latitude == vmmetrics@Latitude",
 				"     && azuremetrics@Longitude == vmmetrics@Longitude",
 				"     && azuremetrics@ISO2 == vmmetrics@ISO2",
@@ -89,17 +90,17 @@
 				"     matchType:'exact',",
 				"     ignoreSpaces: false,",
 				"     partitionBy('hash', 1),",
-				"     broadcast: 'auto')~> joincases",
-				"joincases sink(allowSchemaDrift: true,",
+				"     broadcast: 'auto')~> join1",
+				"join1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'parquet',",
-				"     partitionFileNames:['cases.parquet'],",
+				"     partitionFileNames:['recoveries.parquet'],",
 				"     umask: 0022,",
 				"     preCommands: [],",
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     partitionBy('hash', 1)) ~> casesdata"
+				"     partitionBy('hash', 1)) ~> combinedrecoveries"
 			]
 		}
 	}
