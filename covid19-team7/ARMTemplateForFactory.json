@@ -801,7 +801,7 @@
 						"userProperties": [],
 						"typeProperties": {
 							"dataflow": {
-								"referenceName": "deaths_data_copy1",
+								"referenceName": "deaths_data",
 								"type": "DataFlowReference",
 								"parameters": {},
 								"datasetParameters": {
@@ -1579,7 +1579,7 @@
 				"[concat(variables('factoryId'), '/dataflows/country_data')]",
 				"[concat(variables('factoryId'), '/dataflows/dates_data')]",
 				"[concat(variables('factoryId'), '/dataflows/cases_data')]",
-				"[concat(variables('factoryId'), '/dataflows/deaths_data_copy1')]",
+				"[concat(variables('factoryId'), '/dataflows/deaths_data')]",
 				"[concat(variables('factoryId'), '/dataflows/recoveries_data')]",
 				"[concat(variables('factoryId'), '/datasets/cosmos_data')]",
 				"[concat(variables('factoryId'), '/datasets/policies')]"
@@ -4035,7 +4035,10 @@
 					],
 					"transformations": [
 						{
-							"name": "joincases"
+							"name": "union1"
+						},
+						{
+							"name": "select1"
 						}
 					],
 					"scriptLines": [
@@ -4080,22 +4083,23 @@
 						"     ignoreNoFilesFound: false,",
 						"     format: 'parquet',",
 						"     partitionBy('hash', 1)) ~> vmmetrics",
-						"azuremetrics, vmmetrics join(azuremetrics@ID == vmmetrics@ID",
-						"     && azuremetrics@Updated == vmmetrics@Updated",
-						"     && azuremetrics@Confirmed == vmmetrics@Confirmed",
-						"     && azuremetrics@Confirmed_Change == vmmetrics@Confirmed_Change",
-						"     && azuremetrics@Latitude == vmmetrics@Latitude",
-						"     && azuremetrics@Longitude == vmmetrics@Longitude",
-						"     && azuremetrics@ISO2 == vmmetrics@ISO2",
-						"     && azuremetrics@ISO3 == vmmetrics@ISO3",
-						"     && azuremetrics@Country_Region == vmmetrics@Country_Region",
-						"     && azuremetrics@load_time == vmmetrics@load_time,",
-						"     joinType:'outer',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     partitionBy('hash', 1),",
-						"     broadcast: 'auto')~> joincases",
-						"joincases sink(allowSchemaDrift: true,",
+						"azuremetrics, vmmetrics union(byName: true,",
+						"     partitionBy('hash', 1))~> union1",
+						"union1 select(mapColumn(",
+						"          ID,",
+						"          Updated,",
+						"          Confirmed,",
+						"          Confirmed_Change,",
+						"          Latitude,",
+						"          Longitude,",
+						"          ISO2,",
+						"          ISO3,",
+						"          Country_Region,",
+						"          load_time",
+						"     ),",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"select1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     format: 'parquet',",
 						"     partitionFileNames:['cases.parquet'],",
@@ -4148,7 +4152,7 @@
 					],
 					"transformations": [
 						{
-							"name": "union1"
+							"name": "join1"
 						}
 					],
 					"scriptLines": [
@@ -4174,9 +4178,15 @@
 						"     ignoreNoFilesFound: false,",
 						"     format: 'parquet',",
 						"     partitionBy('hash', 1)) ~> vmcountry",
-						"azurecountry, vmcountry union(byName: true,",
-						"     partitionBy('hash', 1))~> union1",
-						"union1 sink(allowSchemaDrift: true,",
+						"azurecountry, vmcountry join(azurecountry@Country == vmcountry@Country",
+						"     && azurecountry@CountryCode == vmcountry@CountryCode",
+						"     && azurecountry@Latitude == vmcountry@Latitude",
+						"     && azurecountry@Longitude == vmcountry@Longitude,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join1",
+						"join1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     format: 'parquet',",
 						"     partitionFileNames:['geography.parquet'],",
@@ -4229,7 +4239,7 @@
 					],
 					"transformations": [
 						{
-							"name": "union1"
+							"name": "join1"
 						}
 					],
 					"scriptLines": [
@@ -4287,9 +4297,31 @@
 						"     ignoreNoFilesFound: false,",
 						"     format: 'parquet',",
 						"     partitionBy('hash', 1)) ~> vmdates",
-						"azuredates, vmdates union(byName: true,",
-						"     partitionBy('hash', 1))~> union1",
-						"union1 sink(allowSchemaDrift: true,",
+						"azuredates, vmdates join(azuredates@DateKey == vmdates@DateKey",
+						"     && azuredates@FullDate == vmdates@FullDate",
+						"     && azuredates@isWeekDay == vmdates@isWeekDay",
+						"     && azuredates@DayOfWeek == vmdates@DayOfWeek",
+						"     && azuredates@DayOfMonth == vmdates@DayOfMonth",
+						"     && azuredates@DayOfQuarter == vmdates@DayOfQuarter",
+						"     && azuredates@DayOfYear == vmdates@DayOfYear",
+						"     && azuredates@DayName == vmdates@DayName",
+						"     && azuredates@WeekOfYear == vmdates@WeekOfYear",
+						"     && azuredates@WeekName == vmdates@WeekName",
+						"     && azuredates@MonthOfYear == vmdates@MonthOfYear",
+						"     && azuredates@MonthName == vmdates@MonthName",
+						"     && azuredates@CalendarQuarter == vmdates@CalendarQuarter",
+						"     && azuredates@CalendarQuarterName == vmdates@CalendarQuarterName",
+						"     && azuredates@CalendarYear == vmdates@CalendarYear",
+						"     && azuredates@FiscalMonth == vmdates@FiscalMonth",
+						"     && azuredates@FiscalMonthName == vmdates@FiscalMonthName",
+						"     && azuredates@FiscalQuarter == vmdates@FiscalQuarter",
+						"     && azuredates@FiscalQuarterName == vmdates@FiscalQuarterName",
+						"     && azuredates@FiscalYear == vmdates@FiscalYear,",
+						"     joinType:'inner',",
+						"     matchType:'exact',",
+						"     ignoreSpaces: false,",
+						"     broadcast: 'auto')~> join1",
+						"join1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     format: 'parquet',",
 						"     partitionFileNames:['date.parquet'],",
@@ -4310,120 +4342,6 @@
 		},
 		{
 			"name": "[concat(parameters('factoryName'), '/deaths_data')]",
-			"type": "Microsoft.DataFactory/factories/dataflows",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "MappingDataFlow",
-				"typeProperties": {
-					"sources": [
-						{
-							"dataset": {
-								"referenceName": "covidmetrics_azuresql",
-								"type": "DatasetReference"
-							},
-							"name": "azuremetrics"
-						},
-						{
-							"dataset": {
-								"referenceName": "vm_metrics",
-								"type": "DatasetReference"
-							},
-							"name": "vmmetrics"
-						}
-					],
-					"sinks": [
-						{
-							"dataset": {
-								"referenceName": "deaths_data",
-								"type": "DatasetReference"
-							},
-							"name": "deathsdata"
-						}
-					],
-					"transformations": [
-						{
-							"name": "join1"
-						}
-					],
-					"scriptLines": [
-						"source(output(",
-						"          ID as integer,",
-						"          Updated as date,",
-						"          Confirmed as integer,",
-						"          Confirmed_Change as integer,",
-						"          Deaths as integer,",
-						"          Deaths_Change as integer,",
-						"          Recovered as integer,",
-						"          Recovered_Change as integer,",
-						"          Latitude as decimal(10,5),",
-						"          Longitude as decimal(10,5),",
-						"          ISO2 as string,",
-						"          ISO3 as string,",
-						"          Country_Region as string,",
-						"          load_time as timestamp",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     format: 'parquet',",
-						"     partitionBy('hash', 1)) ~> azuremetrics",
-						"source(output(",
-						"          ID as integer,",
-						"          Updated as date,",
-						"          Confirmed as integer,",
-						"          Confirmed_Change as integer,",
-						"          Deaths as integer,",
-						"          Deaths_Change as integer,",
-						"          Recovered as integer,",
-						"          Recovered_Change as integer,",
-						"          Latitude as decimal(10,5),",
-						"          Longitude as decimal(10,5),",
-						"          ISO2 as string,",
-						"          ISO3 as string,",
-						"          Country_Region as string,",
-						"          load_time as timestamp",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     format: 'parquet',",
-						"     partitionBy('hash', 1)) ~> vmmetrics",
-						"azuremetrics, vmmetrics join(azuremetrics@ID == vmmetrics@ID",
-						"     && azuremetrics@Updated == vmmetrics@Updated",
-						"     && azuremetrics@Deaths == vmmetrics@Deaths",
-						"     && azuremetrics@Deaths_Change == vmmetrics@Deaths_Change",
-						"     && azuremetrics@Latitude == vmmetrics@Latitude",
-						"     && azuremetrics@Longitude == vmmetrics@Longitude",
-						"     && azuremetrics@ISO2 == vmmetrics@ISO2",
-						"     && azuremetrics@ISO3 == vmmetrics@ISO3",
-						"     && azuremetrics@Country_Region == vmmetrics@Country_Region",
-						"     && azuremetrics@load_time == vmmetrics@load_time,",
-						"     joinType:'outer',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
-						"     partitionBy('hash', 1),",
-						"     broadcast: 'auto')~> join1",
-						"join1 sink(allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     format: 'parquet',",
-						"     partitionFileNames:['deaths.parquet'],",
-						"     umask: 0022,",
-						"     preCommands: [],",
-						"     postCommands: [],",
-						"     skipDuplicateMapInputs: true,",
-						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> deathsdata"
-					]
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/covidmetrics_azuresql')]",
-				"[concat(variables('factoryId'), '/datasets/vm_metrics')]",
-				"[concat(variables('factoryId'), '/datasets/deaths_data')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/deaths_data_copy1')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -4574,7 +4492,10 @@
 					],
 					"transformations": [
 						{
-							"name": "join1"
+							"name": "union1"
+						},
+						{
+							"name": "select1"
 						}
 					],
 					"scriptLines": [
@@ -4620,22 +4541,24 @@
 						"     ignoreNoFilesFound: false,",
 						"     format: 'parquet',",
 						"     partitionBy('hash', 1)) ~> vmmetrics",
-						"azuremetrics, vmmetrics join(azuremetrics@ID == vmmetrics@ID",
-						"     && azuremetrics@Updated == vmmetrics@Updated",
-						"     && azuremetrics@Recovered == vmmetrics@Recovered",
-						"     && azuremetrics@Recovered_Change == vmmetrics@Recovered_Change",
-						"     && azuremetrics@Latitude == vmmetrics@Latitude",
-						"     && azuremetrics@Longitude == vmmetrics@Longitude",
-						"     && azuremetrics@ISO2 == vmmetrics@ISO2",
-						"     && azuremetrics@ISO3 == vmmetrics@ISO3",
-						"     && azuremetrics@Country_Region == vmmetrics@Country_Region",
-						"     && azuremetrics@load_time == vmmetrics@load_time,",
-						"     joinType:'outer',",
-						"     matchType:'exact',",
-						"     ignoreSpaces: false,",
+						"azuremetrics, vmmetrics union(byName: true,",
+						"     partitionBy('hash', 1))~> union1",
+						"union1 select(mapColumn(",
+						"          ID,",
+						"          Updated,",
+						"          Recovered,",
+						"          Recovered_Change,",
+						"          Latitude,",
+						"          Longitude,",
+						"          ISO2,",
+						"          ISO3,",
+						"          Country_Region,",
+						"          load_time",
+						"     ),",
 						"     partitionBy('hash', 1),",
-						"     broadcast: 'auto')~> join1",
-						"join1 sink(allowSchemaDrift: true,",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true) ~> select1",
+						"select1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     format: 'parquet',",
 						"     partitionFileNames:['recoveries.parquet'],",
