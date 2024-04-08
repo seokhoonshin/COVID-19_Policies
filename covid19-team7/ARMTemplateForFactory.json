@@ -695,7 +695,7 @@
 			"properties": {
 				"activities": [
 					{
-						"name": "Data flow1",
+						"name": "country data",
 						"type": "ExecuteDataFlow",
 						"dependsOn": [],
 						"policy": {
@@ -708,18 +708,75 @@
 						"userProperties": [],
 						"typeProperties": {
 							"dataflow": {
-								"referenceName": "dataflow1",
+								"referenceName": "country_data",
 								"type": "DataFlowReference",
 								"parameters": {},
 								"datasetParameters": {
 									"azurecountry": {},
-									"azuremetrics": {},
-									"azuredates": {},
 									"vmcountry": {},
+									"combinedcountry": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "dates data",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dates_data",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"azuredates": {},
 									"vmdates": {},
+									"combineddates": {}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					},
+					{
+						"name": "metrics data",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "metrics_data",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"azuremetrics": {},
 									"vmmetrics": {},
-									"cosmospolicy": {},
-									"combineddata": {}
+									"combinedmetrics": {}
 								}
 							},
 							"staging": {},
@@ -737,7 +794,9 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/dataflows/dataflow1')]"
+				"[concat(variables('factoryId'), '/dataflows/country_data')]",
+				"[concat(variables('factoryId'), '/dataflows/dates_data')]",
+				"[concat(variables('factoryId'), '/dataflows/metrics_data')]"
 			]
 		},
 		{
@@ -2616,7 +2675,55 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/combined_data')]",
+			"name": "[concat(parameters('factoryName'), '/combined_country_data')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileSystem": "conformed-data"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage2')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/combined_dates_data')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorage2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileSystem": "conformed-data"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorage2')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/combined_metrics_data')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -3036,7 +3143,7 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/dataflow1')]",
+			"name": "[concat(parameters('factoryName'), '/country_data')]",
 			"type": "Microsoft.DataFactory/factories/dataflows",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -3052,59 +3159,24 @@
 						},
 						{
 							"dataset": {
-								"referenceName": "covidmetrics_azuresql",
-								"type": "DatasetReference"
-							},
-							"name": "azuremetrics"
-						},
-						{
-							"dataset": {
-								"referenceName": "dates_azuresql",
-								"type": "DatasetReference"
-							},
-							"name": "azuredates"
-						},
-						{
-							"dataset": {
 								"referenceName": "vm_country",
 								"type": "DatasetReference"
 							},
 							"name": "vmcountry"
-						},
-						{
-							"dataset": {
-								"referenceName": "vm_dates",
-								"type": "DatasetReference"
-							},
-							"name": "vmdates"
-						},
-						{
-							"dataset": {
-								"referenceName": "vm_metrics",
-								"type": "DatasetReference"
-							},
-							"name": "vmmetrics"
-						},
-						{
-							"dataset": {
-								"referenceName": "cosmos_data",
-								"type": "DatasetReference"
-							},
-							"name": "cosmospolicy"
 						}
 					],
 					"sinks": [
 						{
 							"dataset": {
-								"referenceName": "combined_data",
+								"referenceName": "combined_country_data",
 								"type": "DatasetReference"
 							},
-							"name": "combineddata"
+							"name": "combinedcountry"
 						}
 					],
 					"transformations": [
 						{
-							"name": "union"
+							"name": "union1"
 						}
 					],
 					"scriptLines": [
@@ -3120,47 +3192,80 @@
 						"     format: 'parquet',",
 						"     partitionBy('hash', 1)) ~> azurecountry",
 						"source(output(",
-						"          ID as integer,",
-						"          Updated as date,",
-						"          Confirmed as integer,",
-						"          Confirmed_Change as integer,",
-						"          Deaths as integer,",
-						"          Deaths_Change as integer,",
-						"          Recovered as integer,",
-						"          Recovered_Change as integer,",
+						"          Country as string,",
+						"          CountryCode as string,",
 						"          Latitude as decimal(10,5),",
-						"          Longitude as decimal(10,5),",
-						"          ISO2 as string,",
-						"          ISO3 as string,",
-						"          Country_Region as string,",
-						"          load_time as timestamp",
+						"          Longitude as decimal(10,5)",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     ignoreNoFilesFound: false,",
 						"     format: 'parquet',",
-						"     partitionBy('hash', 1)) ~> azuremetrics",
+						"     partitionBy('hash', 1)) ~> vmcountry",
+						"azurecountry, vmcountry union(byName: true,",
+						"     partitionBy('hash', 1))~> union1",
+						"union1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     partitionFileNames:['combined_country_data'],",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> combinedcountry"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/country_azuresql')]",
+				"[concat(variables('factoryId'), '/datasets/vm_country')]",
+				"[concat(variables('factoryId'), '/datasets/combined_country_data')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dates_data')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "dates_azuresql",
+								"type": "DatasetReference"
+							},
+							"name": "azuredates"
+						},
+						{
+							"dataset": {
+								"referenceName": "vm_dates",
+								"type": "DatasetReference"
+							},
+							"name": "vmdates"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "combined_dates_data",
+								"type": "DatasetReference"
+							},
+							"name": "combineddates"
+						}
+					],
+					"transformations": [
+						{
+							"name": "union1"
+						}
+					],
+					"scriptLines": [
 						"source(output(",
-						"          DateKey as integer,",
-						"          FullDate as date,",
-						"          isWeekDay as boolean,",
-						"          DayOfWeek as integer,",
-						"          DayOfMonth as integer,",
-						"          DayOfQuarter as integer,",
-						"          DayOfYear as integer,",
-						"          DayName as string,",
-						"          WeekOfYear as integer,",
-						"          WeekName as string,",
-						"          MonthOfYear as integer,",
-						"          MonthName as string,",
-						"          CalendarQuarter as integer,",
-						"          CalendarQuarterName as string,",
-						"          CalendarYear as integer,",
-						"          FiscalMonth as integer,",
-						"          FiscalMonthName as string,",
-						"          FiscalQuarter as integer,",
-						"          FiscalQuarterName as string,",
-						"          FiscalYear as integer",
+						"          Country as string,",
+						"          CountryCode as string,",
+						"          Latitude as decimal(10,5),",
+						"          Longitude as decimal(10,5)",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
@@ -3177,141 +3282,105 @@
 						"     validateSchema: false,",
 						"     ignoreNoFilesFound: false,",
 						"     format: 'parquet',",
-						"     partitionBy('hash', 1)) ~> vmcountry",
+						"     partitionBy('hash', 1)) ~> vmdates",
+						"azuredates, vmdates union(byName: true,",
+						"     partitionBy('hash', 1))~> union1",
+						"union1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     format: 'parquet',",
+						"     partitionFileNames:['combined_dates_data'],",
+						"     umask: 0022,",
+						"     preCommands: [],",
+						"     postCommands: [],",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     partitionBy('hash', 1)) ~> combineddates"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/dates_azuresql')]",
+				"[concat(variables('factoryId'), '/datasets/vm_dates')]",
+				"[concat(variables('factoryId'), '/datasets/combined_dates_data')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/metrics_data')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "covidmetrics_azuresql",
+								"type": "DatasetReference"
+							},
+							"name": "azuremetrics"
+						},
+						{
+							"dataset": {
+								"referenceName": "vm_metrics",
+								"type": "DatasetReference"
+							},
+							"name": "vmmetrics"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "combined_metrics_data",
+								"type": "DatasetReference"
+							},
+							"name": "combinedmetrics"
+						}
+					],
+					"transformations": [
+						{
+							"name": "union1"
+						}
+					],
+					"scriptLines": [
 						"source(output(",
-						"          DateKey as integer,",
-						"          FullDate as date,",
-						"          isWeekDay as boolean,",
-						"          DayOfWeek as integer,",
-						"          DayOfMonth as integer,",
-						"          DayOfQuarter as integer,",
-						"          DayOfYear as integer,",
-						"          DayName as string,",
-						"          WeekOfYear as integer,",
-						"          WeekName as string,",
-						"          MonthOfYear as integer,",
-						"          MonthName as string,",
-						"          CalendarQuarter as integer,",
-						"          CalendarQuarterName as string,",
-						"          CalendarYear as integer,",
-						"          FiscalMonth as integer,",
-						"          FiscalMonthName as string,",
-						"          FiscalQuarter as integer,",
-						"          FiscalQuarterName as string,",
-						"          FiscalYear as integer",
+						"          Country as string,",
+						"          CountryCode as string,",
+						"          Latitude as decimal(10,5),",
+						"          Longitude as decimal(10,5)",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     ignoreNoFilesFound: false,",
-						"     format: 'parquet',",
-						"     partitionBy('hash', 1)) ~> vmdates",
+						"     format: 'parquet') ~> azuremetrics",
 						"source(output(",
-						"          ID as integer,",
-						"          Updated as date,",
-						"          Confirmed as integer,",
-						"          Confirmed_Change as integer,",
-						"          Deaths as integer,",
-						"          Deaths_Change as integer,",
-						"          Recovered as integer,",
-						"          Recovered_Change as integer,",
+						"          Country as string,",
+						"          CountryCode as string,",
 						"          Latitude as decimal(10,5),",
-						"          Longitude as decimal(10,5),",
-						"          ISO2 as string,",
-						"          ISO3 as string,",
-						"          Country_Region as string,",
-						"          load_time as timestamp",
+						"          Longitude as decimal(10,5)",
 						"     ),",
 						"     allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     ignoreNoFilesFound: false,",
 						"     format: 'parquet',",
 						"     partitionBy('hash', 1)) ~> vmmetrics",
-						"source(output(",
-						"          CountryName as string,",
-						"          CountryCode as string,",
-						"          RegionName as string,",
-						"          RegionCode as string,",
-						"          Jurisdiction as string,",
-						"          Date as timestamp,",
-						"          C1_School_closing as double,",
-						"          C1_Flag as boolean,",
-						"          C2_Workplace_closing as double,",
-						"          C2_Flag as boolean,",
-						"          C3_Cancel_public_events as double,",
-						"          C3_Flag as boolean,",
-						"          C4_Restrictions_on_gatherings as double,",
-						"          C4_Flag as boolean,",
-						"          C5_Close_public_transport as double,",
-						"          C5_Flag as boolean,",
-						"          C6_Stay_at_home_requirements as double,",
-						"          C6_Flag as boolean,",
-						"          C7_Restrictions_on_internal_movement as double,",
-						"          C7_Flag as boolean,",
-						"          C8_International_travel_controls as double,",
-						"          E1_Income_support as double,",
-						"          E1_Flag as boolean,",
-						"          E2_Debt_contract_relief as double,",
-						"          E3_Fiscal_measures as double,",
-						"          E4_International_support as double,",
-						"          H1_Public_information_campaigns as double,",
-						"          H1_Flag as boolean,",
-						"          H2_Testing_policy as double,",
-						"          H3_Contact_tracing as double,",
-						"          H4_Emergency_investment_in_healthcare as double,",
-						"          H5_Investment_in_vaccines as double,",
-						"          H6_Facial_Coverings as double,",
-						"          H6_Flag as boolean,",
-						"          H7_Vaccination_policy as double,",
-						"          H7_Flag as boolean,",
-						"          H8_Protection_of_elderly_people as double,",
-						"          H8_Flag as boolean,",
-						"          M1_Wildcard as double,",
-						"          StringencyIndex as double,",
-						"          StringencyIndexForDisplay as double,",
-						"          StringencyLegacyIndex as double,",
-						"          StringencyLegacyIndexForDisplay as double,",
-						"          GovernmentResponseIndex as double,",
-						"          GovernmentResponseIndexForDisplay as double,",
-						"          ContainmentHealthIndex as double,",
-						"          ContainmentHealthIndexForDisplay as double,",
-						"          EconomicSupportIndex as double,",
-						"          EconomicSupportIndexForDisplay as double,",
-						"          id as string,",
-						"          {_rid} as string,",
-						"          {_self} as string,",
-						"          {_etag} as string,",
-						"          {_attachments} as string,",
-						"          {_ts} as double",
-						"     ),",
-						"     allowSchemaDrift: true,",
-						"     validateSchema: false,",
-						"     ignoreNoFilesFound: false,",
-						"     format: 'parquet',",
-						"     partitionBy('hash', 1)) ~> cosmospolicy",
-						"azurecountry, azuremetrics, azuredates, vmcountry, vmdates, vmmetrics, cosmospolicy union(byName: true,",
-						"     partitionBy('hash', 1))~> union",
-						"union sink(allowSchemaDrift: true,",
+						"azuremetrics, vmmetrics union(byName: true)~> union1",
+						"union1 sink(allowSchemaDrift: true,",
 						"     validateSchema: false,",
 						"     format: 'parquet',",
-						"     partitionFileNames:['CovidData.parquet'],",
+						"     partitionFileNames:['combined_metrics_data'],",
 						"     umask: 0022,",
 						"     preCommands: [],",
 						"     postCommands: [],",
 						"     skipDuplicateMapInputs: true,",
 						"     skipDuplicateMapOutputs: true,",
-						"     partitionBy('hash', 1)) ~> combineddata"
+						"     partitionBy('hash', 1)) ~> combinedmetrics"
 					]
 				}
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/country_azuresql')]",
 				"[concat(variables('factoryId'), '/datasets/covidmetrics_azuresql')]",
-				"[concat(variables('factoryId'), '/datasets/dates_azuresql')]",
-				"[concat(variables('factoryId'), '/datasets/vm_country')]",
-				"[concat(variables('factoryId'), '/datasets/vm_dates')]",
 				"[concat(variables('factoryId'), '/datasets/vm_metrics')]",
-				"[concat(variables('factoryId'), '/datasets/cosmos_data')]",
-				"[concat(variables('factoryId'), '/datasets/combined_data')]"
+				"[concat(variables('factoryId'), '/datasets/combined_metrics_data')]"
 			]
 		}
 	]
