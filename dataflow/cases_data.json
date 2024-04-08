@@ -1,5 +1,5 @@
 {
-	"name": "metrics_data",
+	"name": "cases_data",
 	"properties": {
 		"type": "MappingDataFlow",
 		"typeProperties": {
@@ -22,50 +22,84 @@
 			"sinks": [
 				{
 					"dataset": {
-						"referenceName": "combined_metrics_data",
+						"referenceName": "cases_data",
 						"type": "DatasetReference"
 					},
-					"name": "combinedmetrics"
+					"name": "casesdata"
 				}
 			],
 			"transformations": [
 				{
-					"name": "union1"
+					"name": "joincases"
 				}
 			],
 			"scriptLines": [
 				"source(output(",
-				"          Country as string,",
-				"          CountryCode as string,",
+				"          ID as integer,",
+				"          Updated as date,",
+				"          Confirmed as integer,",
+				"          Confirmed_Change as integer,",
+				"          Deaths as integer,",
+				"          Deaths_Change as integer,",
+				"          Recovered as integer,",
+				"          Recovered_Change as integer,",
 				"          Latitude as decimal(10,5),",
-				"          Longitude as decimal(10,5)",
+				"          Longitude as decimal(10,5),",
+				"          ISO2 as string,",
+				"          ISO3 as string,",
+				"          Country_Region as string,",
+				"          load_time as timestamp",
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false,",
 				"     format: 'parquet') ~> azuremetrics",
 				"source(output(",
-				"          Country as string,",
-				"          CountryCode as string,",
+				"          ID as integer,",
+				"          Updated as date,",
+				"          Confirmed as integer,",
+				"          Confirmed_Change as integer,",
+				"          Deaths as integer,",
+				"          Deaths_Change as integer,",
+				"          Recovered as integer,",
+				"          Recovered_Change as integer,",
 				"          Latitude as decimal(10,5),",
-				"          Longitude as decimal(10,5)",
+				"          Longitude as decimal(10,5),",
+				"          ISO2 as string,",
+				"          ISO3 as string,",
+				"          Country_Region as string,",
+				"          load_time as timestamp",
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     ignoreNoFilesFound: false,",
 				"     format: 'parquet',",
 				"     partitionBy('hash', 1)) ~> vmmetrics",
-				"azuremetrics, vmmetrics union(byName: true)~> union1",
-				"union1 sink(allowSchemaDrift: true,",
+				"azuremetrics, vmmetrics join(azuremetrics@ID == vmmetrics@ID",
+				"     && azuremetrics@Updated == vmmetrics@Updated",
+				"     && azuremetrics@Confirmed == vmmetrics@Confirmed",
+				"     && azuremetrics@Confirmed_Change == vmmetrics@Confirmed_Change",
+				"     && azuremetrics@Latitude == vmmetrics@Latitude",
+				"     && azuremetrics@Longitude == vmmetrics@Longitude",
+				"     && azuremetrics@ISO2 == vmmetrics@ISO2",
+				"     && azuremetrics@ISO3 == vmmetrics@ISO3",
+				"     && azuremetrics@Country_Region == vmmetrics@Country_Region",
+				"     && azuremetrics@load_time == vmmetrics@load_time,",
+				"     joinType:'outer',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     partitionBy('hash', 1),",
+				"     broadcast: 'auto')~> joincases",
+				"joincases sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     format: 'parquet',",
-				"     partitionFileNames:['combined_metrics_data'],",
+				"     partitionFileNames:['cases'],",
 				"     umask: 0022,",
 				"     preCommands: [],",
 				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true,",
-				"     partitionBy('hash', 1)) ~> combinedmetrics"
+				"     partitionBy('hash', 1)) ~> casesdata"
 			]
 		}
 	}

@@ -1,5 +1,5 @@
 {
-	"name": "combined_metrics_data",
+	"name": "cases_data",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "AzureDataLakeStorage2",
