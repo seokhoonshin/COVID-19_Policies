@@ -772,6 +772,7 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
+						"fileName": "policies.parquet",
 						"fileSystem": "conformed-data"
 					},
 					"compressionCodec": "snappy"
