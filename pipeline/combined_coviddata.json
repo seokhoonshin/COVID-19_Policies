@@ -88,7 +88,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "deaths_data",
+						"referenceName": "deaths_data_copy1",
 						"type": "DataFlowReference"
 					},
 					"compute": {
