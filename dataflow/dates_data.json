@@ -5,15 +5,27 @@
 		"typeProperties": {
 			"sources": [
 				{
-					"name": "source1"
+					"dataset": {
+						"referenceName": "dates_azuresql",
+						"type": "DatasetReference"
+					},
+					"name": "azuredates"
 				},
 				{
-					"name": "source2"
+					"dataset": {
+						"referenceName": "vm_dates",
+						"type": "DatasetReference"
+					},
+					"name": "vmdates"
 				}
 			],
 			"sinks": [
 				{
-					"name": "sink1"
+					"dataset": {
+						"referenceName": "combined_dates_data",
+						"type": "DatasetReference"
+					},
+					"name": "combineddates"
 				}
 			],
 			"transformations": [
@@ -22,15 +34,40 @@
 				}
 			],
 			"scriptLines": [
-				"source(allowSchemaDrift: true,",
-				"     validateSchema: false) ~> source1",
-				"source(allowSchemaDrift: true,",
-				"     validateSchema: false) ~> source2",
-				"source1 union(byName: true)~> union1",
+				"source(output(",
+				"          Country as string,",
+				"          CountryCode as string,",
+				"          Latitude as decimal(10,5),",
+				"          Longitude as decimal(10,5)",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet',",
+				"     partitionBy('hash', 1)) ~> azuredates",
+				"source(output(",
+				"          Country as string,",
+				"          CountryCode as string,",
+				"          Latitude as decimal(10,5),",
+				"          Longitude as decimal(10,5)",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet',",
+				"     partitionBy('hash', 1)) ~> vmdates",
+				"azuredates, vmdates union(byName: true,",
+				"     partitionBy('hash', 1))~> union1",
 				"union1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     partitionFileNames:['combined_dates_data'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
 				"     skipDuplicateMapInputs: true,",
-				"     skipDuplicateMapOutputs: true) ~> sink1"
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> combineddates"
 			]
 		}
 	}
