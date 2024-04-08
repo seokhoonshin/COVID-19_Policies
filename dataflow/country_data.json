@@ -1,0 +1,74 @@
+{
+	"name": "country_data",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "country_azuresql",
+						"type": "DatasetReference"
+					},
+					"name": "azurecountry"
+				},
+				{
+					"dataset": {
+						"referenceName": "vm_country",
+						"type": "DatasetReference"
+					},
+					"name": "vmcountry"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "combined_country_data",
+						"type": "DatasetReference"
+					},
+					"name": "combinedcountry"
+				}
+			],
+			"transformations": [
+				{
+					"name": "union1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          Country as string,",
+				"          CountryCode as string,",
+				"          Latitude as decimal(10,5),",
+				"          Longitude as decimal(10,5)",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet',",
+				"     partitionBy('hash', 1)) ~> azurecountry",
+				"source(output(",
+				"          Country as string,",
+				"          CountryCode as string,",
+				"          Latitude as decimal(10,5),",
+				"          Longitude as decimal(10,5)",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet',",
+				"     partitionBy('hash', 1)) ~> vmcountry",
+				"azurecountry, vmcountry union(byName: true,",
+				"     partitionBy('hash', 1))~> union1",
+				"union1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     partitionFileNames:['combined_country_data'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> combinedcountry"
+			]
+		}
+	}
+}

@@ -1,5 +1,5 @@
 {
-	"name": "combined_country_data",
+	"name": "combined_metrics_data",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "AzureDataLakeStorage2",

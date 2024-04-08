@@ -1,0 +1,72 @@
+{
+	"name": "metrics_data",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "covidmetrics_azuresql",
+						"type": "DatasetReference"
+					},
+					"name": "azuremetrics"
+				},
+				{
+					"dataset": {
+						"referenceName": "vm_metrics",
+						"type": "DatasetReference"
+					},
+					"name": "vmmetrics"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "combined_metrics_data",
+						"type": "DatasetReference"
+					},
+					"name": "combinedmetrics"
+				}
+			],
+			"transformations": [
+				{
+					"name": "union1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          Country as string,",
+				"          CountryCode as string,",
+				"          Latitude as decimal(10,5),",
+				"          Longitude as decimal(10,5)",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet') ~> azuremetrics",
+				"source(output(",
+				"          Country as string,",
+				"          CountryCode as string,",
+				"          Latitude as decimal(10,5),",
+				"          Longitude as decimal(10,5)",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     format: 'parquet',",
+				"     partitionBy('hash', 1)) ~> vmmetrics",
+				"azuremetrics, vmmetrics union(byName: true)~> union1",
+				"union1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'parquet',",
+				"     partitionFileNames:['combined_metrics_data'],",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> combinedmetrics"
+			]
+		}
+	}
+}
